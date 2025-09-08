@@ -1,21 +1,38 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import Header from "./components/Header";
+import Product from "./components/Product";
+import Footer from "./components/Footer";
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [cartCount, setCartCount] = useState(0);
+
+  const handleAdd = () => setCartCount((c) => c + 1);
+
+  const products = [
+    { id: 1, name: "Clavier", price: 89.9 },
+    { id: 2, name: "Souris sans fil", price: 39.9 },
+    { id: 3, name: "Casque audio", price: 129.0 },
+  ];
 
   return (
-    <>
-      <h1>MarkePlace WEB Dauphine</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
-    </>
-  )
+    <div style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
+      <Header title={`Marketplace-PSL — Panier: ${cartCount}`} />
+
+      <main style={{ marginTop: 16 }}>
+        {products.map((p) => (
+          <Product
+            key={p.id}
+            name={p.name}
+            price={p.price}
+            onAdd={handleAdd}
+          />
+        ))}
+      </main>
+
+      <Footer year={new Date().getFullYear()} />
+    </div>
+  );
 }
 
 export default App
