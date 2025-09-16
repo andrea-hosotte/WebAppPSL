@@ -12,5 +12,5 @@ export { default as Navbar } from "./components/Navbar";
 
 // Pages
 export { default as Home } from "./pages/Home";
-export { default as ProductsPage } from "./pages/Shop";
+export { default as Shop } from "./pages/Shop";
 export { default as Cart } from "./pages/Cart";

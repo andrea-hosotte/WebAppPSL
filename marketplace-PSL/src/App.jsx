@@ -1,51 +1,59 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
-import Header from "./components/Header";
-import Product from "./components/Product";
-import Footer from "./components/Footer";
-import Navbar from "./components/Navbar";
-import "./App.css";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { Navbar } from "./components/Navbar";
+import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
+import { Home } from "./pages/Home";
+import { Shop } from "./pages/Shop";
+import { Cart } from "./pages/Cart";
 
-export default function App() {
+const pageVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
+  exit:    { opacity: 0, y: -12, transition: { duration: 0.25, ease: "easeInOut" } }
+};
+
+export function App() {
   const [cartCount, setCartCount] = useState(0);
   const handleAdd = () => setCartCount((c) => c + 1);
-
-  const products = [
-    { id: 1, name: "Clavier", price: 89.9 },
-    { id: 2, name: "Souris sans fil", price: 39.9 },
-    { id: 3, name: "Casque audio", price: 129.0 },
-  ];
+  const location = useLocation();
 
   return (
     <div style={{ fontFamily: "system-ui, sans-serif" }}>
       <Navbar cartCount={cartCount} />
-      {/* marge sous la navbar fixe */}
       <div style={{ marginTop: 56, padding: 24 }}>
-        <Header title={`Marketplace-PSL — Panier: ${cartCount}`} />
-
+        <Header />
         <main style={{ marginTop: 16 }}>
-          <Routes>
-            <Route path="/" element={<h2>Bienvenue sur l’accueil 🚀</h2>} />
-            <Route
-              path="/produits"
-              element={
-                <>
-                  {products.map((p) => (
-                    <Product
-                      key={p.id}
-                      name={p.name}
-                      price={p.price}
-                      onAdd={handleAdd}
-                    />
-                  ))}
-                </>
-              }
-            />
-            <Route
-              path="/panier"
-              element={<h2>Votre panier contient {cartCount} article(s) 🛒</h2>}
-            />
-          </Routes>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route
+                path="/"
+                element={
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
+                    <Home />
+                  </motion.div>
+                }
+              />
+              <Route
+                path="/produits"
+                element={
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
+                    <Shop onAdd={handleAdd} />
+                  </motion.div>
+                }
+              />
+              <Route
+                path="/panier"
+                element={
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
+                    <Cart cartCount={cartCount} />
+                  </motion.div>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </AnimatePresence>
         </main>
 
         <Footer year={new Date().getFullYear()} />

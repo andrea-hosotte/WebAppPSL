@@ -40,3 +40,54 @@
 .read-the-docs {
   color: #888;
 }
+
+
+/* ===== HOME styles ===== */
+.home { display: grid; gap: 32px; }
+
+/* HERO dégradé animé */
+.hero {
+  position: relative;     /* 👈 nécessaire pour positionner les orbes en absolu */
+  border-radius: 16px;
+  padding: 56px 24px;
+  overflow: hidden;       /* garde les orbes dans la carte */
+  background: linear-gradient(120deg, #7c3aed, #2563eb, #14b8a6);
+  background-size: 200% 200%;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.16);
+}
+.hero-content { position: relative; z-index: 2; max-width: 780px; }
+.hero h1 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 42px); letter-spacing: .2px; }
+.hero p  { margin: 0 0 18px; font-size: clamp(14px, 2vw, 18px); opacity: .95; }
+.brand   { text-decoration: underline wavy rgba(255,255,255,.45) 2px; text-underline-offset: 4px; }
+
+/* CTA */
+.cta {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  text-decoration: none;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.35);
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.cta:hover { transform: translateY(-1px); background: rgba(255,255,255,0.22); box-shadow: 0 8px 20px rgba(0,0,0,.12); }
+
+
+/* Features grid */
+.features { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 900px) { .features { grid-template-columns: 1fr; } }
+
+.card {
+  border: 1px solid #e5e7eb; border-radius: 14px; padding: 18px; background: #fff;
+  box-shadow: 0 6px 16px rgba(17, 24, 39, 0.06);
+}
+.card h3 { margin: 0 0 6px; font-size: 18px; }
+.card p  { margin: 0; color: #4b5563; }
+
+/* Respecte la préférence utilisateur "réduire les animations" */
+@media (prefers-reduced-motion: reduce) {
+  .hero { animation: none; }
+}
