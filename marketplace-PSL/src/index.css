@@ -24,11 +24,12 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  /* supprime le centrage flex du template Vite */
+  display: block;
 }
+
 
 h1 {
   font-size: 3.2em;

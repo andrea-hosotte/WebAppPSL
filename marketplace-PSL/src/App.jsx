@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { RequireAuth } from "./routes/RequireAuth.jsx";
+import { AuthProvider } from "./context/AuthContext.jsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { Navbar } from "./components/Navbar";
 import { Header } from "./components/Header";
@@ -20,9 +22,14 @@ export function App() {
   const location = useLocation();
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif" }}>
+    <div style={{ fontFamily: "system-ui, sans-serif"}}>
+      <AuthProvider> 
       <Navbar cartCount={cartCount} />
-      <div style={{ marginTop: 56, padding: 24 }}>
+      <div className="full-bleed"
+  style={{
+    marginTop: 56,
+    padding: 24,
+  }}>
         <Header />
         <main style={{ marginTop: 16 }}>
           <AnimatePresence mode="wait">
@@ -38,17 +45,21 @@ export function App() {
               <Route
                 path="/produits"
                 element={
-                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
-                    <Shop onAdd={handleAdd} />
-                  </motion.div>
+                  <RequireAuth>
+                    <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
+                      <Shop onAdd={handleAdd} />
+                    </motion.div>
+                  </RequireAuth>
                 }
               />
               <Route
                 path="/panier"
                 element={
-                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
-                    <Cart cartCount={cartCount} />
-                  </motion.div>
+                  <RequireAuth>
+                    <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
+                      <Cart cartCount={cartCount} />
+                    </motion.div>
+                  </RequireAuth>
                 }
               />
               <Route path="*" element={<Navigate to="/" replace />} />
@@ -58,6 +69,7 @@ export function App() {
 
         <Footer year={new Date().getFullYear()} />
       </div>
+      </AuthProvider> 
     </div>
   );
 }

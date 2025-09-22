@@ -5,6 +5,8 @@ import Lottie from "lottie-react";
 import shoppingAnimation from "../assets/animation/shopping.json";
 import loadingAnimation from "../assets/animation/loading.json";
 import chartsAnimation from "../assets/animation/charts.json";
+import { AuthPanel } from "../components/AuthPanel.jsx";
+import "../App.css";
 
 const container = {
   hidden: { opacity: 0 },
@@ -105,6 +107,9 @@ export function Home() {
             </div>
           </motion.article>
         </motion.div>
+      </div>
+      <div className="home-right">
+        <AuthPanel />
       </div>
     </section>
   );

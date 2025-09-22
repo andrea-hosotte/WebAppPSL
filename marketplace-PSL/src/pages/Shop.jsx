@@ -78,6 +78,7 @@ export function Shop({ onAdd }) {
           key={p.id}
           name={p.name}
           price={p.price}
+          imageUrl={p.image_url}
           onAdd={() => onAdd?.(p)} // on passe le produit si tu veux l’exploiter
         />
       ))}

@@ -1,9 +1,20 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;           /* tu peux remettre du padding sur tes sections au besoin */
+  text-align: initial;
 }
+
+
+/* Bandeau pleine largeur même à l'intérieur d'un container centré */
+.full-bleed {
+  width: 100vw;                 /* prend toute la largeur du viewport */
+  box-sizing: border-box;       /* padding inclus dans la largeur */
+  margin-left:  calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);  /* “casse” le centrage du parent */
+}
+
 
 .logo {
   height: 6em;
@@ -77,7 +88,7 @@
 
 
 /* Features grid */
-.features { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.features { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 @media (max-width: 900px) { .features { grid-template-columns: 1fr; } }
 
 .card {
@@ -90,4 +101,47 @@
 /* Respecte la préférence utilisateur "réduire les animations" */
 @media (prefers-reduced-motion: reduce) {
   .hero { animation: none; }
+}
+
+
+/* ===== Layout Home : 2 colonnes gauche/droite ===== */
+.home-grid {
+  max-width: 1400px;      /* ← plus large que 1200px */
+  margin: 0 auto;
+  padding: 16px;
+  height: 100%;
+  min-height: 100vh;
+
+  display: grid;
+  grid-template-columns: 1.2fr 400px; /* colonne gauche élargie */
+  gap: 32px;                          /* espace un peu plus large */
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.home-left {
+  display: grid;
+  gap: 32px;
+  min-width: 0;
+
+  /* pousse le contenu plus à gauche */
+  margin-left: -40px;  /* ← ajuste -20 / -40 selon ton goût */
+  margin-right: 100px;
+}
+
+.home-right {
+  position: sticky;  /* reste visible au scroll */
+  top: 72px;         /* sous ta navbar fixe (ajuste si navbar plus haute) */
+  height: fit-content;
+}
+
+/* Responsive : empile en 1 colonne en dessous de 1000px */
+@media (max-width: 1000px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+  .home-right {
+    position: static;
+    top: auto;
+  }
 }
