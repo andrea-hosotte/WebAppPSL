@@ -1,68 +1,60 @@
-import { Link } from "react-router-dom";
-import { FaShoppingCart } from "react-icons/fa"; // icône panier
+// src/components/Navbar.jsx
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
+import { AppBar, Toolbar, Box, Button, IconButton, Badge } from "@mui/material";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import PersonIcon from "@mui/icons-material/Person";
 
-export function Navbar({ cartCount = 0 }) {
+export function Navbar({ cartCount = 0, ...rest }) {
+  const { auth, logout } = useAuth();
+  const navigate = useNavigate();
+
   return (
-        <nav
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: 56,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 16px",   // 👈 on élargit un peu
-        background: "#fff",
-        color: "#111",
-        borderBottom: "1px solid #eee",
-        zIndex: 1000,
-        boxSizing: "border-box", // 👈 s’assure que padding est compté
-      }}
+    <AppBar
+      position="fixed"
+      color="inherit"
+      elevation={0}
+      sx={{ borderBottom: "1px solid", borderColor: "divider" }}
     >
+      <Toolbar sx={{ maxWidth: 1200, mx: "auto", width: "100%" }}>
+        <Box sx={{ display: "flex", gap: 1.5 }}>
+          <Button component={RouterLink} to="/home" color="primary">
+            Accueil
+          </Button>
+          <Button component={RouterLink} to="/produits">
+            Produits
+          </Button>
+        </Box>
 
-      <div style={{ display: "flex", gap: 20, fontSize: 15 }}>
-        <Link to="/" style={{ color: "inherit", textDecoration: "none" }}>Accueil</Link>
-        <Link to="/produits" style={{ color: "inherit", textDecoration: "none" }}>Produits</Link>
-      </div>
+        <Box sx={{ flexGrow: 1 }} />
 
-      {/* Icône panier avec badge */}
-            <Link
-        to="/panier"
-        style={{
-          position: "relative",
-          color: "#111",
-          marginRight: 8, // 👈 petit espace avant le bord
-        }}
-        aria-label="Panier"
-      >
-        <FaShoppingCart size={22} />
-        {cartCount > 0 && (
-          <span
-            style={{
-              position: "absolute",
-              top: -6,
-              right: -22,
-              minWidth: 18,
-              height: 18,
-              padding: "0 5px",
-              borderRadius: 999,
-              background: "#e11d48",
-              color: "white",
-              fontSize: 12,
-              fontWeight: "bold",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              lineHeight: 1,
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Button
+            onClick={() => {
+              if (auth?.token) {
+                logout?.();
+              } else {
+                navigate("/", { replace: true });
+              }
             }}
+            startIcon={<PersonIcon />}
+            variant="outlined"
+            size="small"
           >
-            {cartCount}
-          </span>
-        )}
-      </Link>
-
-    </nav>
+            {auth?.token ? "Se déconnecter" : "S'identifier"}
+          </Button>
+          <IconButton onClick={() => navigate("/panier")} aria-label="Panier">
+            <Badge
+              badgeContent={cartCount}
+              color="secondary"
+              overlap="circular"
+              showZero
+            >
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }

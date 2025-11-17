@@ -1,64 +1,77 @@
 // src/components/Product.jsx
-import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  CardActions,
+  Button,
+  Typography,
+  Box,
+  Stack,
+} from "@mui/material";
 
-export function Product({ name, price, imageUrl, onAdd, currency = "€" }) {
-  const [broken, setBroken] = useState(false);
+export function Product({
+  id,
+  name,
+  price,
+  currency = "EUR",
+  description = "",
+  image_url,
+  onAdd,
+}) {
+  const priceLabel = isFinite(price)
+    ? `${price.toFixed(2)} ${currency}`
+    : `— ${currency}`;
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "120px 1fr auto",
-        alignItems: "center",
-        gap: 12,
-        border: "1px solid #ddd",
-        borderRadius: 10,
-        padding: 12,
-        marginBottom: 12,
-        background: "#573f3fff",
-      }}
-    >
-      {/* Zone image */}
-      <div
-        style={{
-          width: 120,
-          height: 90,
-          borderRadius: 8,
-          overflow: "hidden",
-          background: "#f3f4f6",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          border: "1px solid #eee",
-        }}
-      >
-        {imageUrl && !broken ? (
-          <img
-            src={imageUrl}
-            alt={name}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            onError={() => setBroken(true)}
-          />
-        ) : (
-          // Fallback si pas d'image ou erreur de chargement
-          <div style={{ fontSize: 12, color: "#6b7280", textAlign: "center", padding: 8 }}>
-            Pas d’image
-          </div>
-        )}
-      </div>
+    <Card sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      {image_url ? (
+        <CardMedia
+          component="img"
+          src={image_url}
+          alt={name}
+          sx={{ height: 180, objectFit: "cover" }}
+        />
+      ) : (
+        <Box
+          sx={{
+            height: 180,
+            bgcolor: "grey.100",
+            display: "grid",
+            placeItems: "center",
+          }}
+        >
+          <Typography variant="caption" color="text.secondary">
+            Aucune image
+          </Typography>
+        </Box>
+      )}
 
-      {/* Infos produit */}
-      <div>
-        <div style={{ fontWeight: 600, marginBottom: 6 }}>{name}</div>
-        <div style={{ opacity: 0.85 }}>
-          {price?.toFixed ? price.toFixed(2) : Number(price).toFixed(2)} {currency}
-        </div>
-      </div>
+      <CardContent sx={{ flexGrow: 1 }}>
+        <Stack spacing={0.5}>
+          <Typography variant="h6">{name}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {description || "—"}
+          </Typography>
+          {id && (
+            <Typography variant="caption" color="text.secondary">
+              Réf. produit : {id}
+            </Typography>
+          )}
+        </Stack>
+      </CardContent>
 
-      {/* Action */}
-      <button onClick={() => (typeof onAdd === "function" ? onAdd() : null)}>
-        Ajouter
-      </button>
-    </div>
+      <CardActions sx={{ justifyContent: "space-between", px: 2, pb: 2 }}>
+        <Typography sx={{ fontWeight: 700 }}>{priceLabel}</Typography>
+        <Button
+          variant="contained"
+          onClick={() =>
+            onAdd?.({ id, name, price, currency, description, image_url })
+          }
+        >
+          Ajouter
+        </Button>
+      </CardActions>
+    </Card>
   );
 }
