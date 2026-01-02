@@ -1,8 +1,34 @@
+/**
+ * @file Shop.jsx
+ * @description
+ * Page "Shop" (catalogue produits) — affichage + recherche + préparation à des filtres.
+ *
+ * Rôle
+ * - Récupère la liste des produits via `listProducts()` (service API).
+ * - Normalise le shape des produits (tolère différentes conventions de nommage back).
+ * - Applique 2 niveaux de filtrage :
+ *   1) Filtre via querystring `?q=` (piloté par la Home / barre de recherche globale)
+ *   2) Filtre local via champ MUI (recherche instantanée dans la page)
+ * - Rend une grille MUI responsive et délègue la UI d’un produit au composant <Product />.
+ *
+ * Contrat
+ * - Props :
+ *   - onAdd?: (product: ProductDTO, qty?: number) => void
+ *     Utilisé pour ajouter un produit au panier côté App (state global).
+ *
+ * Notes techniques
+ * - `alive` empêche les setState après un unmount (pattern anti-memory leak).
+ * - Les logs `[Shop] ...` facilitent le debug réseau (Network + Console).
+ */
+
+// React : hooks état/effets
 import { useEffect, useState } from "react";
+// Services + composants : accès API produits + carte produit
 import { listProducts } from "../services/products";
 import { Product } from "../components/Product";
+// Router : lecture du querystring (?q=...)
 import { useLocation } from "react-router-dom";
-
+// MUI : layout, formulaires, feedback de chargement
 import {
   Container,
   Box,
@@ -20,26 +46,44 @@ import {
   Divider,
   CircularProgress,
 } from "@mui/material";
+// Icônes
 import SearchIcon from "@mui/icons-material/Search";
 
+// Helper local : expose une API simple pour lire les query params via URLSearchParams.
+// Exemple : const q = useQuery().get("q")
 const useQuery = () => new URLSearchParams(useLocation().search);
 
+/**
+ * Composant page Shop.
+ *
+ * @param {{ onAdd?: (product: any, qty?: number) => void }} props
+ */
 export function Shop({ onAdd }) {
+  // items : liste normalisée (déjà filtrée par ?q= si présent)
   const [items, setItems] = useState([]);
+  // state : état de chargement / erreur (UX)
   const [state, setState] = useState({ loading: true, error: "" });
+  // q : filtre global (querystring) — utilisé pour partager une recherche entre pages
   const q = (useQuery().get("q") || "").toLowerCase();
-
+  // localQuery : filtre local (champ de recherche dans la page)
   const [localQuery, setLocalQuery] = useState("");
 
   useEffect(() => {
+    // Effet déclenché à chaque changement de `q` (querystring)
+    // 1) charge les produits depuis l’API
+    // 2) normalise la structure
+    // 3) applique le filtre global ?q=
     let alive = true;
     (async () => {
       setState({ loading: true, error: "" });
       console.log("[Shop] fetching products...");
       try {
+        // Appel API : doit renvoyer JSON (tableau ou wrapper {items|data})
         const data = await listProducts();
         console.log("[Shop] raw response:", data);
 
+        // Normalisation : tolère plusieurs noms de colonnes selon l’API/DB
+        // Objectif : produire un DTO stable pour la UI
         const arr = Array.isArray(data)
           ? data
           : data?.items || data?.data || [];
@@ -57,6 +101,7 @@ export function Shop({ onAdd }) {
                 : Number(p.price ?? p.prix ?? 0),
         }));
 
+        // Filtre global (querystring) : recherche sur name + description
         const visible = q
           ? norm.filter((x) =>
               [x.name, x.description]
@@ -65,12 +110,14 @@ export function Shop({ onAdd }) {
             )
           : norm;
 
+        // Protection unmount : on ne met à jour l’état que si le composant est encore monté
         if (alive) {
           setItems(visible);
           setState({ loading: false, error: "" });
         }
       } catch (e) {
         console.error("[Shop] error:", e);
+        // Erreur réseau/API : affichage UX + log console pour diagnostic
         if (alive)
           setState({
             loading: false,
@@ -83,6 +130,7 @@ export function Shop({ onAdd }) {
     };
   }, [q]);
 
+  // UX : skeleton/loader tant que l’API n’a pas répondu
   if (state.loading) {
     return (
       <Box sx={{ minHeight: "60vh", display: "grid", placeItems: "center" }}>
@@ -95,6 +143,7 @@ export function Shop({ onAdd }) {
       </Box>
     );
   }
+  // UX : message d’erreur explicite si l’API échoue
   if (state.error) {
     return (
       <Container maxWidth="md" sx={{ py: 6 }}>
@@ -111,6 +160,7 @@ export function Shop({ onAdd }) {
   }
 
   // Filtrage local (en plus du ?q= de l'URL)
+  // Permet un affinage instantané sans recharger l’API.
   const visible = localQuery.trim()
     ? items.filter((p) =>
         [p.name, p.description]
@@ -136,6 +186,11 @@ export function Shop({ onAdd }) {
         </Typography>
       </Stack>
 
+      {/*
+        Barre d’outils
+        - Recherche locale (localQuery)
+        - Zone prévue pour tri/filtres (Select)
+      */}
       {/* Barre outils (recherche + filtres) */}
       <Paper sx={{ p: 2.5, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
@@ -172,22 +227,6 @@ export function Shop({ onAdd }) {
               </Select>
             </FormControl>
           </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <FormControl fullWidth>
-              <InputLabel id="filter-label">Catégorie</InputLabel>
-              <Select
-                labelId="filter-label"
-                label="Catégorie"
-                defaultValue="all"
-              >
-                <MenuItem value="all">Toutes</MenuItem>
-                <MenuItem value="accessoires">Accessoires</MenuItem>
-                <MenuItem value="audio">Audio</MenuItem>
-                <MenuItem value="informatique">Informatique</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
         </Grid>
 
         <Divider sx={{ my: 2 }} />
@@ -197,6 +236,11 @@ export function Shop({ onAdd }) {
         </Typography>
       </Paper>
 
+      {/*
+        Grille responsive
+        - Les breakpoints contrôlent le nombre de colonnes.
+        - <Product /> reçoit un DTO normalisé + callback onAdd.
+      */}
       {/* Grille produits */}
       {visible.length === 0 ? (
         <Paper sx={{ p: 4, textAlign: "center" }}>

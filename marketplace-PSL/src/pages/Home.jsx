@@ -1,12 +1,41 @@
-// src/pages/Home.jsx (MUI version)
+/**
+ * @file Home.jsx
+ * @description
+ * Page d’accueil (Home) — version MUI.
+ *
+ * Objectifs UX
+ * - Présenter un "hero" central avec message marketing + CTA.
+ * - Fournir une barre de recherche (client-side) qui redirige vers `/produits` avec un querystring `?q=`.
+ * - Afficher des "features" (cartes) en grille responsive.
+ *
+ * Intégrations
+ * - MUI : Container/Grid/Paper/typography/form controls.
+ * - Framer Motion : animations d’apparition + animation du background du hero.
+ * - Lottie : animations JSON embarquées pour illustrer les features.
+ * - React Router : navigation programmative vers la page produits.
+ *
+ * Contrat de navigation
+ * - Submit recherche :
+ *   - si q non vide → navigate(`/produits?q=${encodeURIComponent(q)}`)
+ *   - sinon → navigate('/produits')
+ */
+
+// Animation : Framer Motion (hero + cartes)
 import { motion } from "framer-motion";
+// React : state local (query)
 import { useState } from "react";
+// Animations vectorielles : Lottie (assets JSON)
 import Lottie from "lottie-react";
+// Assets Lottie (JSON) — utilisés dans les cartes "features"
 import shoppingAnimation from "../assets/animation/shopping.json";
 import loadingAnimation from "../assets/animation/loading.json";
 import chartsAnimation from "../assets/animation/charts.json";
+// Auth : composant de login/register (actuellement importé mais non utilisé sur cette page)
+// Note: AuthPanel is imported but not used on this page, possibly for future use or shared layout
 import { AuthPanel } from "../components/AuthPanel.jsx";
+// Routing : liens et navigation programmative
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+// UI : Material UI (layout + controls)
 import {
   Container,
   Grid,
@@ -19,31 +48,47 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
+// Icônes MUI
 import Search from "@mui/icons-material/Search";
 
+// Variants Motion : orchestration des animations d’apparition (stagger)
 const container = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
 };
+// Variants Motion : "fade + slide up" utilisé sur les titres/sections
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
 };
 
+/**
+ * Composant Home.
+ *
+ * Notes techniques
+ * - La recherche n’effectue pas d’appel API ici : elle redirige vers Shop, qui gère le fetch et le filtrage.
+ * - `Container maxWidth={false} disableGutters` permet de contrôler la largeur via `sx`.
+ */
 export function Home() {
+  // Query de recherche (barre du hero) — stockée localement
   const [query, setQuery] = useState("");
+  // Router : navigation programmative vers la page /produits
   const navigate = useNavigate();
+  // Submit du formulaire : redirection vers Shop avec `?q=`
   const onSearchSubmit = (e) => {
+    // Empêche le rechargement page (comportement par défaut d’un <form>)
     e.preventDefault();
+    // Normalisation : on retire les espaces inutiles
     const q = query.trim();
+    // Construction de l’URL cible : querystring optionnel
     if (q) navigate(`/produits?q=${encodeURIComponent(q)}`);
     else navigate('/produits');
   };
   return (
     <Container maxWidth={false} disableGutters sx={{ pt: 10, pb: 0, width: '100%', mx: 0 }}>
-      {/* FULL-WIDTH WRAPPER instead of nested Grid */}
+      {/* Wrapper full-width : évite un nested Grid inutile (meilleure maîtrise des widths) */}
       <Box sx={{ width: '100%' }}>
-        {/* HERO full width */}
+        {/* HERO : bloc marketing + recherche + CTA — centré et limité à 70% sur desktop */}
         <Paper
           elevation={4}
           sx={{
@@ -72,6 +117,7 @@ export function Home() {
             </Typography>
             <Stack component={motion.div} variants={fadeUp} spacing={3} sx={{ width: '100%' }}>
               <Box component="form" onSubmit={onSearchSubmit} noValidate>
+                {/* Barre de recherche : fond blanc + submit via icône (loupe) */}
                 <TextField
                   fullWidth
                   placeholder="Rechercher un produit…"
@@ -99,6 +145,7 @@ export function Home() {
                   }}
                 />
               </Box>
+              {/* CTA principal : lien vers /produits (liste complète) */}
               <Button
                 component={RouterLink}
                 to="/produits"
@@ -131,8 +178,9 @@ export function Home() {
           </Box>
         </Paper>
 
-        {/* FEATURES full width grid */}
+        {/* FEATURES : grille responsive (3 cartes) — alignement & hauteur uniforme */}
         <Grid container spacing={3} columns={{ xs: 12, sm: 12, md: 12 }} sx={{ mt: 6, width: '70%', mx: 'auto', justifyContent: 'center', alignItems: 'stretch' }}>
+          {/* Définition des features (titre/texte/animation) + rendu en cartes */}
           {[{
             title: 'Catalogue soigné',
             text: 'Une sélection claire pour décider vite.',
@@ -172,6 +220,7 @@ export function Home() {
                   <Typography variant="h6" sx={{ m: 0 }}>{f.title}</Typography>
                   <Typography variant="body2" color="text.secondary">{f.text}</Typography>
                 </Stack>
+                {/* Lottie : illustration (non interactive) */}
                 <Box sx={{ width: 120, height: 120, mt: 2 }}>
                   <Lottie animationData={f.anim} loop autoplay />
                 </Box>
