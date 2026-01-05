@@ -79,17 +79,8 @@ Le backend est une API REST développée en PHP, exposant plusieurs endpoints po
 | `/api/auth/logout`         | POST    | Déconnexion                                        |
 | `/api/products`            | GET     | Récupération de la liste des produits              |
 | `/api/products/{id}`       | GET     | Détail d’un produit                                |
-| `/api/cart`                | GET     | Récupération du panier de l’utilisateur            |
-| `/api/cart`                | POST    | Ajout d’un produit au panier                       |
-| `/api/cart/{id}`           | PUT     | Modification de la quantité dans le panier         |
-| `/api/cart/{id}`           | DELETE  | Suppression d’un produit du panier                 |
 | `/api/orders`              | POST    | Création d’une commande                            |
 | `/api/orders/{id}`         | GET     | Détail d’une commande                              |
-| `/api/pro/dashboard`       | GET     | Données du tableau de bord professionnel           |
-| `/api/pro/catalog`         | GET     | Liste des produits du vendeur professionnel        |
-| `/api/pro/catalog`         | POST    | Ajout d’un produit au catalogue professionnel      |
-| `/api/pro/catalog/{id}`    | PUT     | Mise à jour d’un produit professionnel             |
-| `/api/pro/catalog/{id}`    | DELETE  | Suppression d’un produit professionnel             |
 
 ---
 
